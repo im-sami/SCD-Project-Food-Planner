@@ -266,6 +266,35 @@ kubectl delete -f deployment-mongo.yaml
 kubectl delete secret backend-env
 ```
 
+## GitHub Actions Setup
+
+### Setting Up a Self-Hosted Runner
+
+1. Go to your GitHub repository > Settings > Actions > Runners
+2. Click "New self-hosted runner"
+3. Select your operating system (Windows) and architecture (x64)
+4. Follow the instructions to download and configure the runner
+
+**Recommended runner installation location:**
+
+```bash
+# Create a dedicated folder for the runner (NOT inside your project directory)
+mkdir C:\actions-runner
+cd C:\actions-runner
+
+# Download the runner package (use the URL from GitHub)
+# Extract and configure as per GitHub instructions
+```
+
+When configured properly, the self-hosted runner will:
+
+1. Monitor your GitHub repository for workflow triggers
+2. Automatically check out your code to a temporary workspace when a workflow runs
+3. Execute the workflow steps in that temporary workspace
+4. Clean up the workspace after completion
+
+The runner service runs independently from your project directory and doesn't need to be in the same location as your code.
+
 ## Usage
 
 - Visit the frontend URL in your browser.
