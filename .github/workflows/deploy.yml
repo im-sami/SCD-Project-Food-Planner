@@ -85,16 +85,13 @@ jobs:
           echo "Checking services:"
           kubectl get services
 
-          # Try to get the URL with error handling
-          try {
-            $url = (minikube service recipe-planner-frontend-service --url)
-            if ($url) {
-              echo "Frontend available at: $url"
-            } else {
-              echo "Could not get URL, but service should be running. Try manually with: minikube service recipe-planner-frontend-service"
-            }
-          } catch {
-            echo "Error getting service URL. Please run manually: minikube service recipe-planner-frontend-service"
-            echo "Service may need more time to become available."
-          }
+          # Get minikube IP
+          $minikubeIp = minikube ip
+          echo "Minikube IP: $minikubeIp"
+
+          # Display access URLs without using 'minikube service' command
+          echo "Frontend available at: http://$minikubeIp:30008"
+          echo "Backend API available at: http://$minikubeIp:30007"
+          echo ""
+          echo "To access directly on your machine, run: minikube service recipe-planner-frontend-service"
         shell: powershell
