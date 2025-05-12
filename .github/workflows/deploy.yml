@@ -65,16 +65,36 @@ jobs:
         run: |
           kubectl apply -f deployment-mongo.yaml
           kubectl apply -f service-mongo.yaml
-          Start-Sleep -Seconds 10
+          echo "Waiting for MongoDB pods to be ready..."
+          kubectl wait --for=condition=ready pod -l app=mongo --timeout=60s
 
           kubectl apply -f deployment-backend.yaml
           kubectl apply -f service-backend.yaml
-          Start-Sleep -Seconds 10
+          echo "Waiting for backend pods to be ready..."
+          kubectl wait --for=condition=ready pod -l app=recipe-planner-backend --timeout=60s
 
           kubectl apply -f deployment-frontend.yaml
           kubectl apply -f service-frontend.yaml
+          echo "Waiting for frontend pods to be ready..."
+          kubectl wait --for=condition=ready pod -l app=recipe-planner-frontend --timeout=60s
 
           echo "Deployment completed."
-          $url = (minikube service recipe-planner-frontend-service --url)
-          echo "Frontend available at: $url"
+          echo "Checking pod status:"
+          kubectl get pods
+
+          echo "Checking services:"
+          kubectl get services
+
+          # Try to get the URL with error handling
+          try {
+            $url = (minikube service recipe-planner-frontend-service --url)
+            if ($url) {
+              echo "Frontend available at: $url"
+            } else {
+              echo "Could not get URL, but service should be running. Try manually with: minikube service recipe-planner-frontend-service"
+            }
+          } catch {
+            echo "Error getting service URL. Please run manually: minikube service recipe-planner-frontend-service"
+            echo "Service may need more time to become available."
+          }
         shell: powershell
