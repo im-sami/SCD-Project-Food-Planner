@@ -1,5 +1,5 @@
-// Get API URL from environment variables or use a default
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Get API URL from environment variables or use a relative URL
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 
 export const API_URL = apiUrl;
 
