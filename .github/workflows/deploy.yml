@@ -45,12 +45,17 @@ jobs:
           docker push samiscd/recipe-planner-mern-frontend:latest
         shell: powershell
 
+      - name: Create namespace if it doesn't exist
+        run: |
+          kubectl create namespace recipe-planner --dry-run=client -o yaml | kubectl apply -f -
+        shell: powershell
+
       - name: Create backend-env secret if it doesn't exist
         run: |
-          $secretExists = kubectl get secret backend-env --ignore-not-found
+          $secretExists = kubectl get secret backend-env -n recipe-planner --ignore-not-found
           if (-not $secretExists) {
             echo "Creating backend-env secret..."
-            kubectl create secret generic backend-env `
+            kubectl create secret generic backend-env -n recipe-planner `
               --from-literal=PORT=5000 `
               --from-literal=MONGO_URI="mongodb://mongo:27017/recipe-planner" `
               --from-literal=JWT_SECRET="temporary_development_secret" `
