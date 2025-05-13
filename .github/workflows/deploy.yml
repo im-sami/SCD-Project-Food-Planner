@@ -85,13 +85,13 @@ jobs:
           echo "Checking services:"
           kubectl get services
 
-          # Get minikube IP
-          $minikubeIp = minikube ip
+          # Get minikube IP and ensure it's properly formatted
+          $minikubeIp = (minikube ip).Trim()
           echo "Minikube IP: $minikubeIp"
 
-          # Display access URLs without using 'minikube service' command
-          echo "Frontend available at: http://$minikubeIp:30008"
-          echo "Backend API available at: http://$minikubeIp:30007"
+          # Use proper PowerShell string formatting
+          echo "Frontend available at: http://$($minikubeIp):30008"
+          echo "Backend API available at: http://$($minikubeIp):30007"
           echo ""
           echo "To access directly on your machine, run: minikube service recipe-planner-frontend-service"
         shell: powershell
