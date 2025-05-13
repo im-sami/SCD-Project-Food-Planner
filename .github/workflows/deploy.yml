@@ -89,9 +89,15 @@ jobs:
           $minikubeIp = (minikube ip).Trim()
           echo "Minikube IP: $minikubeIp"
 
-          # Use proper PowerShell string formatting
-          echo "Frontend available at: http://$($minikubeIp):30008"
-          echo "Backend API available at: http://$($minikubeIp):30007"
+          echo "-----------------------------------------------"
+          echo "IMPORTANT: On Windows with Docker driver, direct access via NodePort might not work."
+          echo "To access your application, use one of these methods:"
           echo ""
-          echo "To access directly on your machine, run: minikube service recipe-planner-frontend-service"
+          echo "1. For local access: minikube service recipe-planner-frontend-service"
+          echo "   This will automatically set up port forwarding and open your browser."
+          echo ""
+          echo "2. For tunnel access, open a separate terminal and run:"
+          echo "   minikube tunnel"
+          echo "   Then access: http://localhost:30008"
+          echo "-----------------------------------------------"
         shell: powershell
