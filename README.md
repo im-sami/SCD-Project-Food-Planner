@@ -114,7 +114,7 @@ Kubernetes manifests (YAML files) for MongoDB, backend and frontend are provided
 2. Create necessary environment variables as Kubernetes secrets:
 
    ```bash
-   kubectl create secret generic backend-env \
+   kubectl create secret generic backend-env -n food-planner \
      --from-literal=PORT=5000 \
      --from-literal=MONGO_URI=mongodb://mongo:27017/recipe-planner \
      --from-literal=JWT_SECRET=your_jwt_secret \
@@ -124,48 +124,74 @@ Kubernetes manifests (YAML files) for MongoDB, backend and frontend are provided
 3. Deploy MongoDB first:
 
    ```bash
-   kubectl apply -f deployment-mongo.yaml
-   kubectl apply -f service-mongo.yaml
+   kubectl apply -f deployment-mongo.yaml -n food-planner
+   kubectl apply -f service-mongo.yaml -n food-planner
    ```
 
 4. Deploy the backend (make sure to wait until MongoDB is running):
 
    ```bash
-   kubectl apply -f deployment-backend.yaml
-   kubectl apply -f service-backend.yaml
+   kubectl apply -f deployment-backend.yaml -n food-planner
+   kubectl apply -f service-backend.yaml -n food-planner
    ```
 
 5. Finally, deploy the frontend:
 
    ```bash
-   kubectl apply -f deployment-frontend.yaml
-   kubectl apply -f service-frontend.yaml
+   kubectl apply -f deployment-frontend.yaml -n food-planner
+   kubectl apply -f service-frontend.yaml -n food-planner
    ```
 
 6. Access the frontend via the NodePort shown in `service-frontend.yaml` (default: `30008`).
 
+### Accessing the Frontend Service
+
+To access your deployed frontend, use:
+
+```bash
+minikube service recipe-planner-frontend-service -n food-planner
+```
+
+This will open the service in your browser with the correct port forwarding.
+
 ### Resetting and Redeploying
 
-If you encounter issues with your Kubernetes deployment, follow these steps to completely reset and redeploy:
+If you encounter issues with your Kubernetes deployment, you have two options:
 
-#### Step 1: Delete all existing resources
+#### Option 1: Quick Reset (Recommended)
+
+Delete all resources in a namespace at once:
+
+```bash
+# Delete everything in the namespace
+kubectl delete all --all -n food-planner
+kubectl delete secret backend-env -n food-planner
+```
+
+This will delete all deployments, services, pods, and other resources in that namespace.
+
+#### Option 2: Step-by-Step Reset
+
+For more control, you can delete resources individually:
 
 ```bash
 # Delete deployments
-kubectl delete deployment recipe-planner-frontend
-kubectl delete deployment recipe-planner-backend
-kubectl delete deployment mongo
+kubectl delete deployment recipe-planner-frontend -n food-planner
+kubectl delete deployment recipe-planner-backend -n food-planner
+kubectl delete deployment mongo -n food-planner
 
 # Delete services
-kubectl delete service recipe-planner-frontend-service
-kubectl delete service recipe-planner-backend-service
-kubectl delete service mongo
+kubectl delete service recipe-planner-frontend-service -n food-planner
+kubectl delete service recipe-planner-backend-service -n food-planner
+kubectl delete service mongo -n food-planner
 
-# Delete any other related resources like secrets
-kubectl delete secret backend-env
+# Delete secrets
+kubectl delete secret backend-env -n food-planner
 ```
 
-#### Step 2: Create the backend environment secret
+#### Redeploying After Reset
+
+1. Create the backend environment secret:
 
 ```yaml
 # Save this as backend-env-secret.yaml
@@ -173,6 +199,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: backend-env
+  namespace: food-planner
 type: Opaque
 stringData:
   PORT: "5000"
@@ -181,7 +208,7 @@ stringData:
   CORS_ORIGIN: "*"
 ```
 
-#### Step 3: Rebuild and push Docker images (if necessary)
+2. Rebuild and push Docker images (if necessary):
 
 ```bash
 # Rebuild frontend with updated config files
@@ -195,54 +222,40 @@ docker build -t samiscd/recipe-planner-mern-backend:latest .
 docker push samiscd/recipe-planner-mern-backend:latest
 ```
 
-#### Step 4: Apply resources in the correct order
+3. Apply resources in the correct order:
 
 ```bash
 # First, create the secret for backend environment variables
-kubectl apply -f backend-env-secret.yaml
+kubectl apply -f backend-env-secret.yaml -n food-planner
 
 # Next, deploy MongoDB
-kubectl apply -f deployment-mongo.yaml
-kubectl apply -f service-mongo.yaml
+kubectl apply -f deployment-mongo.yaml -n food-planner
+kubectl apply -f service-mongo.yaml -n food-planner
 
 # Wait for MongoDB to be running
-kubectl wait --for=condition=ready pod -l app=mongo --timeout=120s
+kubectl wait --for=condition=ready pod -l app=mongo -n food-planner --timeout=120s
 
 # Then deploy the backend
-kubectl apply -f deployment-backend.yaml
-kubectl apply -f service-backend.yaml
+kubectl apply -f deployment-backend.yaml -n food-planner
+kubectl apply -f service-backend.yaml -n food-planner
 
 # Wait for backend to be running
-kubectl wait --for=condition=ready pod -l app=recipe-planner-backend --timeout=120s
+kubectl wait --for=condition=ready pod -l app=recipe-planner-backend -n food-planner --timeout=120s
 
 # Finally, deploy the frontend
-kubectl apply -f deployment-frontend.yaml
-kubectl apply -f service-frontend.yaml
+kubectl apply -f deployment-frontend.yaml -n food-planner
+kubectl apply -f service-frontend.yaml -n food-planner
 ```
 
-#### Step 5: Verify everything is running properly
+4. Verify everything is running properly:
 
 ```bash
 # Check all resources
-kubectl get all
+kubectl get all -n food-planner
 
 # Check specific pod logs
-kubectl logs -l app=recipe-planner-backend
-kubectl logs -l app=recipe-planner-frontend
-```
-
-#### Step 6: Access your application
-
-Once everything is running, you can access your frontend at:
-
-```
-http://<your-node-ip>:30008
-```
-
-If you're using minikube, you can run:
-
-```bash
-minikube service recipe-planner-frontend-service
+kubectl logs -l app=recipe-planner-backend -n food-planner
+kubectl logs -l app=recipe-planner-frontend -n food-planner
 ```
 
 **Notes on Kubernetes YAML files:**
@@ -251,20 +264,6 @@ minikube service recipe-planner-frontend-service
 - The `deployment-backend.yaml` references the `backend-env` secret for environment variables
 - The `deployment-frontend.yaml` sets the `VITE_API_URL` to connect to the backend service
 - The services use explicit namespaces to avoid deployment issues
-
-**Cleaning up resources:**
-
-If you need to restart or remove everything:
-
-```bash
-kubectl delete -f service-frontend.yaml
-kubectl delete -f deployment-frontend.yaml
-kubectl delete -f service-backend.yaml
-kubectl delete -f deployment-backend.yaml
-kubectl delete -f service-mongo.yaml
-kubectl delete -f deployment-mongo.yaml
-kubectl delete secret backend-env
-```
 
 ## GitHub Actions Setup
 
@@ -308,9 +307,11 @@ The runner service runs independently from your project directory and doesn't ne
 - For Kubernetes deployments:
   - If NodePorts are already allocated, delete the existing services first with:
     ```bash
-    kubectl delete service recipe-planner-backend-service -n default
-    kubectl delete service recipe-planner-frontend-service -n default
+    kubectl delete service recipe-planner-backend-service -n food-planner
+    kubectl delete service recipe-planner-frontend-service -n food-planner
     ```
   - If backend pods show `CreateContainerConfigError`, ensure the `backend-env` secret exists
-  - Check pod status with `kubectl get pods` and logs with `kubectl logs -l app=recipe-planner-backend`
+  - Check pod status with `kubectl get pods -n food-planner`
+  - Check logs with `kubectl logs -l app=recipe-planner-backend -n food-planner`
   - If you need to check which namespace a service is in, use `kubectl get services --all-namespaces`
+  - If the frontend can't connect to the backend, ensure your nginx.conf is correctly set up and the frontend is using the right API URL

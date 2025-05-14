@@ -47,15 +47,15 @@ jobs:
 
       - name: Create namespace if it doesn't exist
         run: |
-          kubectl create namespace recipe-planner --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace food-planner --dry-run=client -o yaml | kubectl apply -f -
         shell: powershell
 
       - name: Create backend-env secret if it doesn't exist
         run: |
-          $secretExists = kubectl get secret backend-env -n recipe-planner --ignore-not-found
+          $secretExists = kubectl get secret backend-env -n food-planner --ignore-not-found
           if (-not $secretExists) {
             echo "Creating backend-env secret..."
-            kubectl create secret generic backend-env -n recipe-planner `
+            kubectl create secret generic backend-env -n food-planner `
               --from-literal=PORT=5000 `
               --from-literal=MONGO_URI="mongodb://mongo:27017/recipe-planner" `
               --from-literal=JWT_SECRET="temporary_development_secret" `
@@ -68,27 +68,27 @@ jobs:
 
       - name: Deploy to Minikube
         run: |
-          kubectl apply -f deployment-mongo.yaml
-          kubectl apply -f service-mongo.yaml
+          kubectl apply -f deployment-mongo.yaml -n food-planner
+          kubectl apply -f service-mongo.yaml -n food-planner
           echo "Waiting for MongoDB pods to be ready..."
-          kubectl wait --for=condition=ready pod -l app=mongo --timeout=60s
+          kubectl wait --for=condition=ready pod -l app=mongo -n food-planner --timeout=60s
 
-          kubectl apply -f deployment-backend.yaml
-          kubectl apply -f service-backend.yaml
+          kubectl apply -f deployment-backend.yaml -n food-planner
+          kubectl apply -f service-backend.yaml -n food-planner
           echo "Waiting for backend pods to be ready..."
-          kubectl wait --for=condition=ready pod -l app=recipe-planner-backend --timeout=60s
+          kubectl wait --for=condition=ready pod -l app=recipe-planner-backend -n food-planner --timeout=60s
 
-          kubectl apply -f deployment-frontend.yaml
-          kubectl apply -f service-frontend.yaml
+          kubectl apply -f deployment-frontend.yaml -n food-planner
+          kubectl apply -f service-frontend.yaml -n food-planner
           echo "Waiting for frontend pods to be ready..."
-          kubectl wait --for=condition=ready pod -l app=recipe-planner-frontend --timeout=60s
+          kubectl wait --for=condition=ready pod -l app=recipe-planner-frontend -n food-planner --timeout=60s
 
           echo "Deployment completed."
           echo "Checking pod status:"
-          kubectl get pods
+          kubectl get pods -n food-planner
 
           echo "Checking services:"
-          kubectl get services
+          kubectl get services -n food-planner
 
           # Get minikube IP and ensure it's properly formatted
           $minikubeIp = (minikube ip).Trim()
@@ -98,7 +98,7 @@ jobs:
           echo "IMPORTANT: On Windows with Docker driver, direct access via NodePort might not work."
           echo "To access your application, use one of these methods:"
           echo ""
-          echo "1. For local access: minikube service recipe-planner-frontend-service"
+          echo "1. For local access: minikube service recipe-planner-frontend-service -n food-planner"
           echo "   This will automatically set up port forwarding and open your browser."
           echo ""
           echo "2. For tunnel access, open a separate terminal and run:"
