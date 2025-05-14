@@ -6,6 +6,13 @@
 - npm (comes with Node.js)
 - MongoDB (running locally or provide a connection string)
 - **Optional:** Docker
+- **Kubernetes/Minikube:**
+  - Make sure **Docker** and **Minikube** are running before deploying.
+  - If Minikube is not running, start it with:
+    ```bash
+    minikube start --driver=docker
+    ```
+    (or use your preferred driver, e.g., `--driver=hyperv`)
 
 ## 1. Backend Setup
 
