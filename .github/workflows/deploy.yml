@@ -39,10 +39,31 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push Docker images to Docker Hub
+      # Split push operations into separate steps to ensure completion
+      - name: Push Backend Docker image
         run: |
+          echo "Pushing backend image to Docker Hub..."
           docker push samiscd/recipe-planner-mern-backend:latest
+          echo "Backend image push completed."
+        shell: powershell
+
+      - name: Push Frontend Docker image
+        run: |
+          echo "Pushing frontend image to Docker Hub..."
           docker push samiscd/recipe-planner-mern-frontend:latest
+          echo "Frontend image push completed."
+        shell: powershell
+
+      # Verify images exist in Docker Hub before proceeding
+      - name: Verify Docker images are available
+        run: |
+          echo "Verifying backend image..."
+          docker manifest inspect samiscd/recipe-planner-mern-backend:latest
+
+          echo "Verifying frontend image..."
+          docker manifest inspect samiscd/recipe-planner-mern-frontend:latest
+
+          echo "Both images verified. Proceeding with deployment."
         shell: powershell
 
       - name: Create namespace if it doesn't exist

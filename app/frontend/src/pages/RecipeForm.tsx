@@ -15,6 +15,7 @@ const RecipeForm: React.FC = () => {
     { name: '', quantity: 0, unit: '' },
   ]);
   const [steps, setSteps] = useState<string[]>(['']);
+  const [cookingTimeMinutes, setCookingTimeMinutes] = useState(30); // Added cooking time state
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [isPublic, setIsPublic] = useState(true);
@@ -29,6 +30,7 @@ const RecipeForm: React.FC = () => {
         setImageUrl(recipe.imageUrl);
         setIngredients(recipe.ingredients);
         setSteps(recipe.steps);
+        setCookingTimeMinutes(recipe.cookingTimeMinutes || 30); // Set cooking time from recipe
         setTags(recipe.tags);
         setIsPublic(recipe.isPublic);
       }
@@ -71,6 +73,7 @@ const RecipeForm: React.FC = () => {
       formData.append('title', title);
       formData.append('ingredients', JSON.stringify(validIngredients));
       formData.append('steps', JSON.stringify(validSteps));
+      formData.append('cookingTimeMinutes', String(cookingTimeMinutes)); // Add cooking time to form data
       formData.append('tags', JSON.stringify(tags));
       formData.append('isPublic', String(isPublic));
       if (imageFile) {
@@ -207,6 +210,21 @@ const RecipeForm: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+
+            <div>
+              <label htmlFor="cookingTime" className="block text-sm font-medium text-gray-700 mb-1">
+                Cooking Time (minutes)
+              </label>
+              <input
+                type="number"
+                id="cookingTime"
+                value={cookingTimeMinutes}
+                onChange={(e) => setCookingTimeMinutes(Math.max(1, parseInt(e.target.value) || 0))}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                placeholder="e.g., 30"
+                min="1"
+              />
             </div>
 
             <div>

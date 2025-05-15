@@ -19,7 +19,7 @@ interface MealPlanContextType {
 
 const MealPlanContext = createContext<MealPlanContextType | undefined>(undefined);
 
-export const useMealPlan = () => {
+export const useMealPlan = (): MealPlanContextType => {
   const context = useContext(MealPlanContext);
   if (!context) {
     throw new Error('useMealPlan must be used within a MealPlanProvider');

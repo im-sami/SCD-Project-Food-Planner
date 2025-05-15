@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ChefHat, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,7 +9,11 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
+
+  // Get the redirect path from location state if available
+  const from = location.state?.from || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +27,8 @@ const Login: React.FC = () => {
     try {
       setIsLoading(true);
       await login(email, password);
-      navigate('/');
+      // Navigate to the page the user was trying to access
+      navigate(from, { replace: true });
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
       console.error(err);

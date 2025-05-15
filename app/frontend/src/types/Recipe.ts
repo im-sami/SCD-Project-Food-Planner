@@ -23,6 +23,7 @@ export interface Recipe {
   ingredients: Ingredient[];
   steps: string[];
   tags: string[];
+  cookingTimeMinutes: number; // Added cooking time field
   ownerId: string;
   isPublic: boolean;
   ratings: Rating[];

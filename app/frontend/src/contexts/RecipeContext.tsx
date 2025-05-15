@@ -19,7 +19,7 @@ interface RecipeContextType {
 
 const RecipeContext = createContext<RecipeContextType | undefined>(undefined);
 
-export const useRecipes = () => {
+export const useRecipes = (): RecipeContextType => {
   const context = useContext(RecipeContext);
   if (!context) {
     throw new Error('useRecipes must be used within a RecipeProvider');
@@ -116,11 +116,18 @@ const sampleRecipes: Recipe[] = [
   },
 ];
 
+const normalizeRecipe = (recipe: any) => ({
+  ...recipe,
+  ownerId: recipe.ownerId && typeof recipe.ownerId === 'object' && recipe.ownerId._id
+    ? recipe.ownerId._id
+    : recipe.ownerId?.toString?.() || recipe.ownerId,
+});
+
 export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { currentUser } = useAuth(); // <-- move this inside the component, not at the top level
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const { currentUser } = useAuth();
 
   useEffect(() => {
     fetchRecipes();
@@ -130,11 +137,12 @@ export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setLoading(true);
     try {
       const response = await axios.get(`${API_URL}/recipes`);
-      setRecipes(response.data);
+      // Normalize ownerId for all recipes
+      setRecipes(response.data.map(normalizeRecipe));
     } catch (err) {
       setError('Failed to fetch recipes');
       // Fallback to sample data if API fails
-      setRecipes(sampleRecipes);
+      setRecipes(sampleRecipes.map(normalizeRecipe));
     } finally {
       setLoading(false);
     }
@@ -157,7 +165,7 @@ export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         },
       });
 
-      const newRecipe = response.data;
+      const newRecipe = normalizeRecipe(response.data);
       setRecipes((prevRecipes) => [...prevRecipes, newRecipe]);
       return newRecipe;
     } catch (err) {
@@ -189,7 +197,7 @@ export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         },
       });
 
-      const updatedRecipe = response.data;
+      const updatedRecipe = normalizeRecipe(response.data);
       setRecipes((prevRecipes) => prevRecipes.map((r) => (r._id === id ? updatedRecipe : r)));
       return updatedRecipe;
     } catch (err) {
@@ -330,7 +338,7 @@ export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const matchesTag = !tag || recipe.tags.includes(tag);
 
       // Filter by owner
-      const matchesOwner = !onlyMine || (currentUser && recipe.ownerId === currentUser.id);
+      const matchesOwner = !onlyMine || (currentUser && recipe.ownerId?.toString() === currentUser.id?.toString());
 
       // Filter by visibility
       const isVisible = recipe.isPublic || (currentUser && recipe.ownerId === currentUser.id);

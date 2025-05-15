@@ -27,30 +27,42 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true); // Start with loading true
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Consolidated token verification logic
     const token = localStorage.getItem('token');
     if (token) {
+      setLoading(true);
       axios.defaults.headers.Authorization = `Bearer ${token}`;
-      fetchUser();
+      
+      axios
+        .get(`${API_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
+          setCurrentUser({
+            id: res.data._id || res.data.id,
+            name: res.data.name,
+            email: res.data.email,
+            createdAt: res.data.createdAt || '',
+            sharedWith: res.data.sharedWith || [],
+          });
+          setIsAuthenticated(true);
+          setLoading(false);
+        })
+        .catch(() => {
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.Authorization;
+          setCurrentUser(null);
+          setIsAuthenticated(false);
+          setLoading(false);
+        });
+    } else {
+      setLoading(false); // Make sure to set loading to false if no token
     }
-  }, []);
-
-  const fetchUser = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/users/me`);
-      setCurrentUser(response.data);
-      setIsAuthenticated(true);
-    } catch (err) {
-      setError('Failed to fetch user');
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, []); // Keep the empty dependency array
 
   const login = async (email: string, password: string): Promise<User> => {
     setLoading(true);
@@ -62,9 +74,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(userData);
       setIsAuthenticated(true);
       return userData;
-    } catch (err) {
+    } catch (_) {
       setError('Login failed');
-      throw err;
+      throw _;
     } finally {
       setLoading(false);
     }
@@ -80,9 +92,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(userData);
       setIsAuthenticated(true);
       return userData;
-    } catch (err) {
+    } catch (_) {
       setError('Registration failed');
-      throw err;
+      throw _;
     } finally {
       setLoading(false);
     }
@@ -95,9 +107,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await axios.put(`${API_URL}/users/me`, user);
       setCurrentUser(response.data);
       return response.data;
-    } catch (err) {
+    } catch (_) {
       setError('Profile update failed');
-      throw err;
+      throw _;
     } finally {
       setLoading(false);
     }

@@ -34,7 +34,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, className = '' }) => {
             </div>
             <div className="flex items-center text-sm">
               <Clock className="h-4 w-4 mr-1 text-gray-600" />
-              <span className="text-gray-600">{Math.ceil(recipe.steps.length * 5)} min</span>
+              <span className="text-gray-600">{recipe.cookingTimeMinutes || Math.ceil(recipe.steps.length * 5)} min</span>
             </div>
           </div>
           

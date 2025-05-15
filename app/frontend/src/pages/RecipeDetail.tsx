@@ -128,7 +128,7 @@ const RecipeDetail: React.FC = () => {
             <h1 className="text-3xl font-bold text-white mb-2">{recipe.title}</h1>
             <div className="flex items-center text-white/90 mb-2">
               <Clock className="h-5 w-5 mr-1" />
-              <span>{Math.ceil(recipe.steps.length * 5)} minutes</span>
+              <span>{recipe.cookingTimeMinutes || Math.ceil(recipe.steps.length * 5)} minutes</span>
               <div className="mx-2">•</div>
               <div className="flex items-center">
                 <Star className="h-5 w-5 mr-1 text-yellow-400" />

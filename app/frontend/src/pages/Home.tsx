@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, ChevronRight } from 'lucide-react';
 import { useRecipes } from '../contexts/RecipeContext';
+import { useAuth } from '../contexts/AuthContext';
 import RecipeCard from '../components/recipes/RecipeCard';
 
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const { recipes, filterRecipes } = useRecipes();
+  const { isAuthenticated } = useAuth();
   
   // Get all unique tags from recipes
   const allTags = [...new Set(recipes.flatMap(recipe => recipe.tags))].sort();
@@ -26,18 +28,37 @@ const Home: React.FC = () => {
               Discover delicious recipes, plan your meals for the week, and generate shopping lists with ease.
             </p>
             <div className="flex justify-center">
-              <Link 
-                to="/register" 
-                className="bg-white text-green-600 hover:bg-gray-100 font-semibold py-3 px-6 rounded-md shadow transition-colors mr-4"
-              >
-                Get Started
-              </Link>
-              <Link 
-                to="/meal-planner" 
-                className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-green-600 font-semibold py-3 px-6 rounded-md transition-colors"
-              >
-                Try Meal Planning
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to="/my-cookbook"
+                    className="bg-white text-green-600 hover:bg-gray-100 font-semibold py-3 px-6 rounded-md shadow transition-colors mr-4"
+                  >
+                    Go to My Cookbook
+                  </Link>
+                  <Link
+                    to="/meal-planner"
+                    className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-green-600 font-semibold py-3 px-6 rounded-md transition-colors"
+                  >
+                    Try Meal Planning
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    className="bg-white text-green-600 hover:bg-gray-100 font-semibold py-3 px-6 rounded-md shadow transition-colors mr-4"
+                  >
+                    Get Started
+                  </Link>
+                  <Link
+                    to="/meal-planner"
+                    className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-green-600 font-semibold py-3 px-6 rounded-md transition-colors"
+                  >
+                    Try Meal Planning
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

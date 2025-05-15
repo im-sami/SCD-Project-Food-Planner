@@ -4,8 +4,10 @@ import { ChevronLeft, ChevronRight, Calendar, Plus } from 'lucide-react';
 import { useMealPlan } from '../contexts/MealPlanContext';
 import { useRecipes } from '../contexts/RecipeContext';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const MealPlanner: React.FC = () => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { currentMealPlan, createWeeklyPlan, addRecipeToSlot, removeRecipeFromSlot } = useMealPlan();
   const { recipes } = useRecipes();
   
@@ -85,6 +87,10 @@ const MealPlanner: React.FC = () => {
     
     return mealsByType;
   };
+
+  if (authLoading) {
+    return <div className="text-center py-10">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 py-8">
