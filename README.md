@@ -1,5 +1,59 @@
 # FoodPlanner - Recipe & Meal Planning App
 
+## Features
+
+FoodPlanner is a comprehensive meal planning application designed to streamline your cooking experience:
+
+- **User Authentication**: Secure registration and login system
+- **Recipe Management**: Create, view, edit, and delete your own recipes
+- **Ingredient Tracking**: Manage recipe ingredients with quantities and units
+- **Cooking Instructions**: Add step-by-step cooking instructions
+- **Recipe Discovery**: Browse and search public recipes from other users
+- **Meal Planning**: Plan your meals for the week with an interactive calendar
+- **Shopping List Generation**: Automatically create shopping lists from your meal plan
+- **Recipe Rating & Comments**: Rate and comment on recipes
+- **Recipe Sharing**: Make your recipes public or keep them private
+- **Responsive Design**: Works on desktop and mobile devices
+- **Tag-based Filtering**: Organize and find recipes by tags
+
+## Screenshots
+
+### Home Page
+
+![Home Page](screenshots/home-page.png)
+
+### Recipe Detail
+
+![Recipe Detail](screenshots/recipe-detail.png)
+
+### Meal Planner
+
+![Meal Planner](screenshots/meal-planner.png)
+
+### My Cookbook
+
+![My Cookbook](screenshots/my-cookbook.png)
+
+### Recipe Form
+
+![Recipe Form](screenshots/recipe-form.png)
+
+### Register
+
+![Register](screenshots/register.png)
+
+### Login
+
+![Login](screenshots/login.png)
+
+### Shopping List
+
+![Shopping List](screenshots/shopping-list.png)
+
+### User Profile
+
+![User Profile](screenshots/user-profile.png)
+
 ## Prerequisites
 
 - Node.js (v16+ recommended)

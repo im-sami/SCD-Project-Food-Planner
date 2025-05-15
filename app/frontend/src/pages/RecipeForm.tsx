@@ -195,6 +195,9 @@ const RecipeForm: React.FC = () => {
                   <Upload className="h-5 w-5 text-gray-500" />
                 </div>
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Supported formats: JPEG, PNG, GIF, WebP, SVG, BMP, TIFF (max 5MB)
+              </p>
               {imageUrl && (
                 <div className="mt-2">
                   <div className="h-40 w-full overflow-hidden rounded-md">

@@ -20,12 +20,22 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter
+// Improved file filter
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image/")) {
+  // Check both mimetype and file extension
+  const filetypes = /jpeg|jpg|png|gif|webp|svg|bmp|tiff/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = file.mimetype.startsWith("image/");
+
+  if (mimetype && extname) {
     cb(null, true);
   } else {
-    cb(new Error("Not an image! Please upload only images."), false);
+    cb(
+      new Error(
+        "Invalid file format. Please upload a supported image format (JPEG, PNG, GIF, WebP, SVG, BMP, TIFF)."
+      ),
+      false
+    );
   }
 };
 
