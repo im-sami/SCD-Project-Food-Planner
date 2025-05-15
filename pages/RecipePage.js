@@ -10,20 +10,23 @@ const RecipePage = () => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
+    console.log("RecipePage mounted with recipeId:", recipeId); // Debugging
+
     const fetchRecipe = async () => {
       try {
         setLoading(true);
         const response = await fetch(`/api/recipes/${recipeId}`, {
           headers: {
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${user?.token || ""}`,
           },
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch recipe");
+          throw new Error(`Failed to fetch recipe: ${response.statusText}`);
         }
 
         const data = await response.json();
+        console.log("Recipe data:", data); // Debugging
         setRecipe(data);
       } catch (err) {
         console.error("Error fetching recipe:", err);
@@ -33,7 +36,7 @@ const RecipePage = () => {
       }
     };
 
-    if (recipeId && user) {
+    if (recipeId) {
       fetchRecipe();
     }
   }, [recipeId, user]);
