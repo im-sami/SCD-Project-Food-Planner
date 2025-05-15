@@ -63,7 +63,13 @@ const createRecipe = async (req, res) => {
 
     // Handle image upload if present
     if (req.file) {
-      otherFields.imageUrl = `/uploads/${req.file.filename}`;
+      // Convert the file buffer to a base64 data URL for storage in database
+      const imageBuffer = req.file.buffer;
+      const imageType = req.file.mimetype;
+      const base64Image = `data:${imageType};base64,${imageBuffer.toString(
+        "base64"
+      )}`;
+      otherFields.imageUrl = base64Image;
     }
 
     // Add the authenticated user as the owner
@@ -109,7 +115,13 @@ const updateRecipe = async (req, res) => {
 
     // Handle image upload if present
     if (req.file) {
-      recipeData.imageUrl = `/uploads/${req.file.filename}`;
+      // Convert the file buffer to a base64 data URL for storage in database
+      const imageBuffer = req.file.buffer;
+      const imageType = req.file.mimetype;
+      const base64Image = `data:${imageType};base64,${imageBuffer.toString(
+        "base64"
+      )}`;
+      recipeData.imageUrl = base64Image;
     }
 
     // Check if the user owns this recipe before updating

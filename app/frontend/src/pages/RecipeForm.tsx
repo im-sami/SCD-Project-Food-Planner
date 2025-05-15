@@ -187,7 +187,7 @@ const RecipeForm: React.FC = () => {
                 <input
                   type="file"
                   id="image"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,image/bmp,image/tiff"
                   onChange={handleImageChange}
                   className="flex-1 p-2 border border-gray-300 rounded-l-md focus:ring-green-500 focus:border-green-500"
                 />
